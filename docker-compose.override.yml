@@ -1,0 +1,10 @@
+services:
+  web:
+    build:
+      target: dev
+    volumes:
+      - ./apps/web:/app
+      - web-node-modules:/app/node_modules
+
+volumes:
+  web-node-modules:
