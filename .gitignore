@@ -1,0 +1,27 @@
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Environment
+.env
+.env.local
+*.local
+
+# Node
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Go
+bin/
+*.test
+*.out
+
+# Docker/database
+postgres-data/
+
+# Logs
+*.log
