@@ -1,15 +1,22 @@
 package routes
 
 import (
+	"database/sql"
 	"net/http"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/officebite/officebite/apps/api/internal/config"
 	"github.com/officebite/officebite/apps/api/internal/handlers"
+	"github.com/officebite/officebite/apps/api/internal/repository"
 )
 
-func NewRouter(cfg config.Config) *gin.Engine {
+type Dependencies struct {
+	SQLDB        *sql.DB
+	Repositories repository.Repositories
+}
+
+func NewRouter(cfg config.Config, deps Dependencies) *gin.Engine {
 	if cfg.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -23,11 +30,13 @@ func NewRouter(cfg config.Config) *gin.Engine {
 		AllowCredentials: true,
 	}))
 
-	healthHandler := handlers.NewHealthHandler()
+	healthHandler := handlers.NewHealthHandler(deps.SQLDB)
 	router.GET("/healthz", healthHandler.Check)
+	router.GET("/readyz", healthHandler.Ready)
 
 	api := router.Group("/api/v1")
 	api.GET("/health", healthHandler.Check)
+	api.GET("/ready", healthHandler.Ready)
 
 	return router
 }

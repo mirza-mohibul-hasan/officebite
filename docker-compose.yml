@@ -29,6 +29,8 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:-officebite}:${POSTGRES_PASSWORD:-officebite}@postgres:5432/${POSTGRES_DB:-officebite}?sslmode=disable
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:5173}
+      AUTO_MIGRATE: ${AUTO_MIGRATE:-true}
+      DATABASE_LOG_LEVEL: ${DATABASE_LOG_LEVEL:-warn}
     depends_on:
       postgres:
         condition: service_healthy
