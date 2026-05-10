@@ -6,3 +6,8 @@ export type AuthUser = {
   email: string;
   role: UserRole;
 };
+
+export type AuthSession = {
+  token: string;
+  user: AuthUser;
+};

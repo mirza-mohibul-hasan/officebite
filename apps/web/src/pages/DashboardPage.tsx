@@ -1,4 +1,6 @@
 import { CalendarDays, ClipboardList, ShieldCheck } from 'lucide-react';
+import { PageHeader } from '../components/PageHeader';
+import { useCurrentUser } from '../hooks/useCurrentUser';
 
 const cards = [
   {
@@ -19,16 +21,14 @@ const cards = [
 ];
 
 export function DashboardPage() {
+  const user = useCurrentUser();
+
   return (
     <div className="space-y-8">
-      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-sm font-medium uppercase tracking-wide text-brand-700">MVP Bootstrap</p>
-        <h2 className="mt-2 text-2xl font-semibold text-slate-950">Office meal management, ready to grow.</h2>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-          The monorepo is wired with a React frontend, Go API, and Dockerized PostgreSQL. Feature branches will fill in
-          authentication, menus, orders, and admin analytics.
-        </p>
-      </section>
+      <PageHeader
+        title={`Welcome, ${user.name}`}
+        description="Review today's menu, place a meal order, and keep track of your meal history."
+      />
 
       <section className="grid gap-4 md:grid-cols-3">
         {cards.map((card) => {
