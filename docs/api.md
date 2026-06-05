@@ -58,8 +58,12 @@ Menu payload:
 {
   "title": "Chicken rice bowl",
   "description": "Grilled chicken with rice and vegetables",
+  "category": "lunch",
   "price": 1200,
-  "available_date": "2026-06-05"
+  "available_date": "2026-06-05",
+  "cutoff_time": "2026-06-05T10:00:00Z",
+  "max_orders": 40,
+  "is_active": true
 }
 ```
 
@@ -88,6 +92,38 @@ Place order payload:
 Requires admin role.
 
 - `GET /admin/orders`
+- `PATCH /admin/orders/:id/status`
+
+Status payload:
+
+```json
+{
+  "status": "confirmed"
+}
+```
+
+Allowed statuses: `placed`, `confirmed`, `delivered`, `cancelled`.
+
+## Users
+
+Requires admin role.
+
+- `GET /admin/users`
+- `POST /admin/users`
+- `PUT /admin/users/:id`
+
+User payload:
+
+```json
+{
+  "name": "Ayesha Rahman",
+  "email": "ayesha@example.com",
+  "password": "password123",
+  "role": "employee",
+  "department": "Finance",
+  "is_active": true
+}
+```
 
 ## Analytics
 

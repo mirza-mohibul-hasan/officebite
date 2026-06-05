@@ -13,6 +13,13 @@ export async function getAdminMenus() {
   return data.menus;
 }
 
+export async function getAdminMenusByRange(start: string, end: string) {
+  const { data } = await api.get<{ menus: Menu[] }>('/admin/menus', {
+    params: { start, end },
+  });
+  return data.menus;
+}
+
 export async function createMenu(payload: MenuPayload) {
   const { data } = await api.post<{ menu: Menu }>('/admin/menus', payload);
   return data.menu;

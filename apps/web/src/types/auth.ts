@@ -5,6 +5,8 @@ export type AuthUser = {
   name: string;
   email: string;
   role: UserRole;
+  department: string;
+  is_active: boolean;
 };
 
 export type AuthSession = {

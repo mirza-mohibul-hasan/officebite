@@ -70,7 +70,9 @@ Current MVP phases live in `docs/architecture.md`.
 - Protected frontend routes
 - Employee dashboard, daily menu view, order placement, cancellation, and history
 - Admin menu CRUD
+- Admin user management
 - Admin all-orders view
+- Admin order lifecycle controls
 - Admin analytics summary
 
 ## API Overview
@@ -88,6 +90,10 @@ All application routes are prefixed with `/api/v1`.
 - `PUT /admin/menus/:id`
 - `DELETE /admin/menus/:id`
 - `GET /admin/orders`
+- `PATCH /admin/orders/:id/status`
+- `GET /admin/users`
+- `POST /admin/users`
+- `PUT /admin/users/:id`
 - `GET /admin/dashboard/summary`
 
 More detail lives in `docs/api.md`.

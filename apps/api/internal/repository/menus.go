@@ -15,6 +15,7 @@ type MenuRepository interface {
 	FindByID(ctx context.Context, id uint) (*models.Menu, error)
 	ListAll(ctx context.Context) ([]models.Menu, error)
 	ListByDate(ctx context.Context, date time.Time) ([]models.Menu, error)
+	ListByDateRange(ctx context.Context, start time.Time, end time.Time) ([]models.Menu, error)
 }
 
 type GormMenuRepository struct {
@@ -60,8 +61,20 @@ func (r *GormMenuRepository) ListAll(ctx context.Context) ([]models.Menu, error)
 func (r *GormMenuRepository) ListByDate(ctx context.Context, date time.Time) ([]models.Menu, error) {
 	var menus []models.Menu
 	if err := r.db.WithContext(ctx).
-		Where("available_date = ?", date.Format("2006-01-02")).
+		Where("available_date = ? AND is_active = ?", date.Format("2006-01-02"), true).
 		Order("title ASC").
+		Find(&menus).Error; err != nil {
+		return nil, err
+	}
+
+	return menus, nil
+}
+
+func (r *GormMenuRepository) ListByDateRange(ctx context.Context, start time.Time, end time.Time) ([]models.Menu, error) {
+	var menus []models.Menu
+	if err := r.db.WithContext(ctx).
+		Where("available_date >= ? AND available_date <= ?", start.Format("2006-01-02"), end.Format("2006-01-02")).
+		Order("available_date ASC, title ASC").
 		Find(&menus).Error; err != nil {
 		return nil, err
 	}

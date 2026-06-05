@@ -1,10 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ClipboardList } from 'lucide-react';
 import { EmptyState } from '../components/EmptyState';
 import { ErrorState } from '../components/ErrorState';
 import { LoadingState } from '../components/LoadingState';
 import { PageHeader } from '../components/PageHeader';
-import { getAdminOrders } from '../services/orders';
+import { getAdminOrders, updateOrderStatus } from '../services/orders';
+import type { OrderStatus } from '../types/order';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatDate } from '../utils/formatDate';
 
@@ -12,6 +13,11 @@ export function AdminOrdersPage() {
   const ordersQuery = useQuery({
     queryKey: ['admin', 'orders'],
     queryFn: getAdminOrders,
+  });
+  const queryClient = useQueryClient();
+  const statusMutation = useMutation({
+    mutationFn: ({ orderId, status }: { orderId: number; status: OrderStatus }) => updateOrderStatus(orderId, status),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'orders'] }),
   });
 
   return (
@@ -39,7 +45,20 @@ export function AdminOrdersPage() {
             <span className="text-slate-600">
               {order.menu?.title ?? 'Meal'} {order.menu ? `(${formatCurrency(order.menu.price)})` : ''}
             </span>
-            <span className="capitalize text-slate-600">{order.status}</span>
+            <span>
+              <select
+                value={order.status}
+                onChange={(event) =>
+                  statusMutation.mutate({ orderId: order.id, status: event.target.value as OrderStatus })
+                }
+                className="h-9 rounded-md border border-slate-300 px-2 text-sm capitalize text-slate-700"
+              >
+                <option value="placed">Placed</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </span>
             <span className="text-slate-600">{formatDate(order.created_at)}</span>
           </div>
         ))}

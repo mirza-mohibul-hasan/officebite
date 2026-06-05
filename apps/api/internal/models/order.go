@@ -6,6 +6,8 @@ type OrderStatus string
 
 const (
 	OrderStatusPlaced    OrderStatus = "placed"
+	OrderStatusConfirmed OrderStatus = "confirmed"
+	OrderStatusDelivered OrderStatus = "delivered"
 	OrderStatusCancelled OrderStatus = "cancelled"
 )
 

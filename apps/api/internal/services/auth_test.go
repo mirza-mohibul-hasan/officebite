@@ -18,6 +18,17 @@ func (r fakeUserRepository) Create(ctx context.Context, user *models.User) error
 	return nil
 }
 
+func (r fakeUserRepository) Update(ctx context.Context, user *models.User) error {
+	return nil
+}
+
+func (r fakeUserRepository) List(ctx context.Context) ([]models.User, error) {
+	if r.user == nil {
+		return []models.User{}, nil
+	}
+	return []models.User{*r.user}, nil
+}
+
 func (r fakeUserRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	if r.user == nil || r.user.Email != email {
 		return nil, gorm.ErrRecordNotFound
@@ -43,6 +54,7 @@ func TestAuthServiceLogin(t *testing.T) {
 		Email:        "employee@officebite.local",
 		PasswordHash: hash,
 		Role:         models.RoleEmployee,
+		IsActive:     true,
 	}}, "test-secret-that-is-long-enough-32", "officebite-test")
 
 	result, err := auth.Login(context.Background(), "employee@officebite.local", "password123")
@@ -67,6 +79,7 @@ func TestAuthServiceLoginRejectsInvalidPassword(t *testing.T) {
 		Email:        "employee@officebite.local",
 		PasswordHash: hash,
 		Role:         models.RoleEmployee,
+		IsActive:     true,
 	}}, "test-secret-that-is-long-enough-32", "officebite-test")
 
 	_, err = auth.Login(context.Background(), "employee@officebite.local", "bad-password")

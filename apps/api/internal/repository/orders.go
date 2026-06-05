@@ -12,6 +12,7 @@ type OrderRepository interface {
 	Update(ctx context.Context, order *models.Order) error
 	FindByID(ctx context.Context, id uint) (*models.Order, error)
 	FindActiveByUserAndMenu(ctx context.Context, userID uint, menuID uint) (*models.Order, error)
+	CountActiveByMenu(ctx context.Context, menuID uint) (int64, error)
 	ListByUser(ctx context.Context, userID uint) ([]models.Order, error)
 	ListAll(ctx context.Context) ([]models.Order, error)
 }
@@ -44,12 +45,24 @@ func (r *GormOrderRepository) FindByID(ctx context.Context, id uint) (*models.Or
 func (r *GormOrderRepository) FindActiveByUserAndMenu(ctx context.Context, userID uint, menuID uint) (*models.Order, error) {
 	var order models.Order
 	if err := r.db.WithContext(ctx).
-		Where("user_id = ? AND menu_id = ? AND status = ?", userID, menuID, models.OrderStatusPlaced).
+		Where("user_id = ? AND menu_id = ? AND status IN ?", userID, menuID, []models.OrderStatus{models.OrderStatusPlaced, models.OrderStatusConfirmed}).
 		First(&order).Error; err != nil {
 		return nil, err
 	}
 
 	return &order, nil
+}
+
+func (r *GormOrderRepository) CountActiveByMenu(ctx context.Context, menuID uint) (int64, error) {
+	var count int64
+	if err := r.db.WithContext(ctx).
+		Model(&models.Order{}).
+		Where("menu_id = ? AND status IN ?", menuID, []models.OrderStatus{models.OrderStatusPlaced, models.OrderStatusConfirmed}).
+		Count(&count).Error; err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (r *GormOrderRepository) ListByUser(ctx context.Context, userID uint) ([]models.Order, error) {

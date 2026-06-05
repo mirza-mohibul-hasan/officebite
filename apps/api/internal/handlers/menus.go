@@ -18,8 +18,12 @@ type MenuHandler struct {
 type menuRequest struct {
 	Title         string `json:"title" binding:"required"`
 	Description   string `json:"description" binding:"required"`
+	Category      string `json:"category"`
 	Price         int64  `json:"price" binding:"required,min=1"`
 	AvailableDate string `json:"available_date" binding:"required"`
+	CutoffTime    string `json:"cutoff_time"`
+	MaxOrders     int    `json:"max_orders"`
+	IsActive      *bool  `json:"is_active"`
 }
 
 func NewMenuHandler(menus services.MenuService) MenuHandler {
@@ -44,6 +48,28 @@ func (h MenuHandler) ListToday(c *gin.Context) {
 }
 
 func (h MenuHandler) ListAll(c *gin.Context) {
+	startParam := c.Query("start")
+	endParam := c.Query("end")
+	if startParam != "" || endParam != "" {
+		start, err := parseDate(startParam)
+		if err != nil {
+			respondError(c, http.StatusBadRequest, "start must use YYYY-MM-DD")
+			return
+		}
+		end, err := parseDate(endParam)
+		if err != nil {
+			respondError(c, http.StatusBadRequest, "end must use YYYY-MM-DD")
+			return
+		}
+		menus, err := h.menus.ListByDateRange(c.Request.Context(), start, end)
+		if err != nil {
+			respondInternalError(c, "failed to load menus")
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"menus": menus})
+		return
+	}
+
 	menus, err := h.menus.ListAll(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to load menus"})
@@ -115,11 +141,28 @@ func bindMenuInput(c *gin.Context) (services.MenuInput, bool) {
 		return services.MenuInput{}, false
 	}
 
+	cutoff := time.Time{}
+	if req.CutoffTime != "" {
+		cutoff, err = time.Parse(time.RFC3339, req.CutoffTime)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "cutoff_time must use RFC3339"})
+			return services.MenuInput{}, false
+		}
+	}
+	isActive := true
+	if req.IsActive != nil {
+		isActive = *req.IsActive
+	}
+
 	return services.MenuInput{
 		Title:         req.Title,
 		Description:   req.Description,
+		Category:      req.Category,
 		Price:         req.Price,
 		AvailableDate: date,
+		CutoffTime:    cutoff,
+		MaxOrders:     req.MaxOrders,
+		IsActive:      isActive,
 	}, true
 }
 
