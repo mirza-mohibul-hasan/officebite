@@ -18,7 +18,14 @@ OfficeBite is organized as a focused monorepo with separate deployable apps and 
 - `config`: environment loading and runtime settings.
 - `utils`: cross-cutting helpers.
 
-## MVP Scope
+## Implemented MVP Scope
+
+- Authentication: JWT login, persisted frontend session, protected routes, employee/admin roles.
+- Menus: admin CRUD APIs and UI, employee daily menu view.
+- Orders: employee order placement, cancellation, history, and admin order review.
+- Dashboard: admin summary metrics for orders, menus, cancellations, and estimated revenue.
+
+## Scope Guardrails
 
 The MVP intentionally keeps one API service and one web app. It avoids microservices, queue infrastructure, Kubernetes, and enterprise-grade observability until product needs justify them.
 
@@ -32,3 +39,4 @@ The MVP intentionally keeps one API service and one web app. It avoids microserv
 6. `feature/menu-management`
 7. `feature/order-management`
 8. `feature/admin-dashboard`
+9. `feature/polishing`

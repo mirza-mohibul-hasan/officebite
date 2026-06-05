@@ -34,6 +34,11 @@ Services:
 - API: http://localhost:8080
 - PostgreSQL: localhost:5432
 
+Seeded MVP accounts:
+
+- Admin: `admin@officebite.local` / `password123`
+- Employee: `employee@officebite.local` / `password123`
+
 ## Local Development
 
 API:
@@ -58,3 +63,31 @@ npm run dev
 - Feature branches: `feature/<scope>`
 
 Current MVP phases live in `docs/architecture.md`.
+
+## MVP Features
+
+- JWT login/logout with employee and admin roles
+- Protected frontend routes
+- Employee dashboard, daily menu view, order placement, cancellation, and history
+- Admin menu CRUD
+- Admin all-orders view
+- Admin analytics summary
+
+## API Overview
+
+All application routes are prefixed with `/api/v1`.
+
+- `POST /auth/login`
+- `GET /auth/me`
+- `GET /menus/today?date=YYYY-MM-DD`
+- `GET /orders`
+- `POST /orders`
+- `PATCH /orders/:id/cancel`
+- `GET /admin/menus`
+- `POST /admin/menus`
+- `PUT /admin/menus/:id`
+- `DELETE /admin/menus/:id`
+- `GET /admin/orders`
+- `GET /admin/dashboard/summary`
+
+More detail lives in `docs/api.md`.
