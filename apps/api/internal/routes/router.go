@@ -52,12 +52,19 @@ func NewRouter(cfg config.Config, deps Dependencies) *gin.Engine {
 	menuHandler := handlers.NewMenuHandler(menuService)
 	protected.GET("/menus/today", menuHandler.ListToday)
 
+	orderService := services.NewOrderService(deps.Repositories.Orders, deps.Repositories.Menus)
+	orderHandler := handlers.NewOrderHandler(orderService)
+	protected.GET("/orders", orderHandler.ListMine)
+	protected.POST("/orders", orderHandler.Place)
+	protected.PATCH("/orders/:id/cancel", orderHandler.Cancel)
+
 	admin := protected.Group("/admin")
 	admin.Use(middleware.RequireRole("admin"))
 	admin.GET("/menus", menuHandler.ListAll)
 	admin.POST("/menus", menuHandler.Create)
 	admin.PUT("/menus/:id", menuHandler.Update)
 	admin.DELETE("/menus/:id", menuHandler.Delete)
+	admin.GET("/orders", orderHandler.ListAll)
 
 	return router
 }

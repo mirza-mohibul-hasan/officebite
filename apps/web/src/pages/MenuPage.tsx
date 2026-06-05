@@ -1,18 +1,26 @@
-import { useQuery } from '@tanstack/react-query';
-import { CalendarDays } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { CalendarDays, ShoppingCart } from 'lucide-react';
 import { EmptyState } from '../components/EmptyState';
 import { ErrorState } from '../components/ErrorState';
 import { LoadingState } from '../components/LoadingState';
 import { PageHeader } from '../components/PageHeader';
 import { getTodayMenus } from '../services/menus';
+import { placeOrder } from '../services/orders';
 import { formatCurrency } from '../utils/formatCurrency';
 import { formatDate, todayISODate } from '../utils/formatDate';
 
 export function MenuPage() {
+  const queryClient = useQueryClient();
   const today = todayISODate();
   const menusQuery = useQuery({
     queryKey: ['menus', 'today', today],
     queryFn: () => getTodayMenus(today),
+  });
+  const orderMutation = useMutation({
+    mutationFn: placeOrder,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
   });
 
   return (
@@ -21,6 +29,7 @@ export function MenuPage() {
 
       {menusQuery.isLoading ? <LoadingState label="Loading menus" /> : null}
       {menusQuery.isError ? <ErrorState message="Could not load today's menus." /> : null}
+      {orderMutation.isError ? <ErrorState message="Could not place this order. You may already have an active order for this meal." /> : null}
       {menusQuery.data?.length === 0 ? (
         <EmptyState
           icon={CalendarDays}
@@ -41,6 +50,15 @@ export function MenuPage() {
                 {formatCurrency(menu.price)}
               </p>
             </div>
+            <button
+              type="button"
+              onClick={() => orderMutation.mutate(menu.id)}
+              disabled={orderMutation.isPending}
+              className="mt-5 inline-flex h-10 items-center gap-2 rounded-md bg-brand-600 px-4 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-70"
+            >
+              <ShoppingCart size={16} aria-hidden="true" />
+              Order meal
+            </button>
           </article>
         ))}
       </section>
