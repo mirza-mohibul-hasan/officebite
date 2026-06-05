@@ -19,8 +19,12 @@ type MenuService struct {
 type MenuInput struct {
 	Title         string
 	Description   string
+	Category      string
 	Price         int64
 	AvailableDate time.Time
+	CutoffTime    time.Time
+	MaxOrders     int
+	IsActive      bool
 }
 
 func NewMenuService(menus repository.MenuRepository) MenuService {
@@ -53,8 +57,12 @@ func (s MenuService) Update(ctx context.Context, id uint, input MenuInput) (*mod
 
 	menu.Title = next.Title
 	menu.Description = next.Description
+	menu.Category = next.Category
 	menu.Price = next.Price
 	menu.AvailableDate = next.AvailableDate
+	menu.CutoffTime = next.CutoffTime
+	menu.MaxOrders = next.MaxOrders
+	menu.IsActive = next.IsActive
 
 	if err := s.menus.Update(ctx, menu); err != nil {
 		return nil, err
@@ -75,17 +83,33 @@ func (s MenuService) ListByDate(ctx context.Context, date time.Time) ([]models.M
 	return s.menus.ListByDate(ctx, date)
 }
 
+func (s MenuService) ListByDateRange(ctx context.Context, start time.Time, end time.Time) ([]models.Menu, error) {
+	return s.menus.ListByDateRange(ctx, start, end)
+}
+
 func buildMenu(input MenuInput) (*models.Menu, error) {
 	title := strings.TrimSpace(input.Title)
 	description := strings.TrimSpace(input.Description)
-	if title == "" || description == "" || input.Price <= 0 || input.AvailableDate.IsZero() {
+	category := strings.TrimSpace(input.Category)
+	if category == "" {
+		category = "lunch"
+	}
+	cutoff := input.CutoffTime
+	if cutoff.IsZero() {
+		cutoff = time.Date(input.AvailableDate.Year(), input.AvailableDate.Month(), input.AvailableDate.Day(), 10, 0, 0, 0, input.AvailableDate.Location())
+	}
+	if title == "" || description == "" || input.Price <= 0 || input.AvailableDate.IsZero() || input.MaxOrders < 0 {
 		return nil, ErrInvalidMenu
 	}
 
 	return &models.Menu{
 		Title:         title,
 		Description:   description,
+		Category:      category,
 		Price:         input.Price,
 		AvailableDate: input.AvailableDate,
+		CutoffTime:    cutoff,
+		MaxOrders:     input.MaxOrders,
+		IsActive:      input.IsActive,
 	}, nil
 }

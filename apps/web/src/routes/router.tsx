@@ -3,6 +3,7 @@ import { AppLayout } from '../layouts/AppLayout';
 import { AdminDashboardPage } from '../pages/AdminDashboardPage';
 import { AdminMenusPage } from '../pages/AdminMenusPage';
 import { AdminOrdersPage } from '../pages/AdminOrdersPage';
+import { AdminUsersPage } from '../pages/AdminUsersPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { MenuPage } from '../pages/MenuPage';
 import { OrderHistoryPage } from '../pages/OrderHistoryPage';
@@ -55,6 +56,10 @@ export const router = createBrowserRouter([
           {
             path: 'orders',
             element: <AdminOrdersPage />,
+          },
+          {
+            path: 'users',
+            element: <AdminUsersPage />,
           },
         ],
       },

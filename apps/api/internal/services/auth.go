@@ -40,6 +40,9 @@ func (s AuthService) Login(ctx context.Context, email string, password string) (
 	if !utils.CheckPassword(user.PasswordHash, password) {
 		return nil, ErrInvalidCredentials
 	}
+	if !user.IsActive {
+		return nil, ErrInvalidCredentials
+	}
 
 	token, err := utils.GenerateToken(s.jwtSecret, s.jwtIssuer, *user)
 	if err != nil {

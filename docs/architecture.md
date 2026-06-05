@@ -1,4 +1,4 @@
-# OfficeBite MVP Architecture
+# OfficeBite Product Architecture
 
 OfficeBite is organized as a focused monorepo with separate deployable apps and shared infrastructure.
 
@@ -18,16 +18,17 @@ OfficeBite is organized as a focused monorepo with separate deployable apps and 
 - `config`: environment loading and runtime settings.
 - `utils`: cross-cutting helpers.
 
-## Implemented MVP Scope
+## Implemented Product Scope
 
 - Authentication: JWT login, persisted frontend session, protected routes, employee/admin roles.
-- Menus: admin CRUD APIs and UI, employee daily menu view.
-- Orders: employee order placement, cancellation, history, and admin order review.
+- Menus: category, capacity, cutoff time, active/inactive publishing, admin CRUD APIs and UI, employee daily menu view.
+- Orders: employee order placement, cutoff-aware cancellation, history, admin order review, and lifecycle status management.
+- Users: admin user creation, updates, department assignment, role assignment, active/inactive access control.
 - Dashboard: admin summary metrics for orders, menus, cancellations, and estimated revenue.
 
 ## Scope Guardrails
 
-The MVP intentionally keeps one API service and one web app. It avoids microservices, queue infrastructure, Kubernetes, and enterprise-grade observability until product needs justify them.
+OfficeBite intentionally keeps one API service and one web app. It avoids microservices, queue infrastructure, Kubernetes, and enterprise-grade observability until product needs justify them.
 
 ## Branch Sequence
 
@@ -40,3 +41,5 @@ The MVP intentionally keeps one API service and one web app. It avoids microserv
 7. `feature/order-management`
 8. `feature/admin-dashboard`
 9. `feature/polishing`
+10. `feature/production-hardening`
+11. `feature/full-platform-v1`

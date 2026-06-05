@@ -1,7 +1,7 @@
 import type { Menu } from './menu';
 import type { AuthUser } from './auth';
 
-export type OrderStatus = 'placed' | 'cancelled';
+export type OrderStatus = 'placed' | 'confirmed' | 'delivered' | 'cancelled';
 
 export type Order = {
   id: number;

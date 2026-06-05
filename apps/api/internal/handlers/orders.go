@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/officebite/officebite/apps/api/internal/middleware"
+	"github.com/officebite/officebite/apps/api/internal/models"
 	"github.com/officebite/officebite/apps/api/internal/services"
 	"gorm.io/gorm"
 )
@@ -16,6 +17,10 @@ type OrderHandler struct {
 
 type placeOrderRequest struct {
 	MenuID uint `json:"menu_id" binding:"required,min=1"`
+}
+
+type updateOrderStatusRequest struct {
+	Status string `json:"status" binding:"required"`
 }
 
 func NewOrderHandler(orders services.OrderService) OrderHandler {
@@ -87,6 +92,26 @@ func (h OrderHandler) ListAll(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"orders": orders})
 }
 
+func (h OrderHandler) UpdateStatus(c *gin.Context) {
+	orderID, ok := parseIDParam(c, "id")
+	if !ok {
+		return
+	}
+	var req updateOrderStatusRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		respondError(c, http.StatusBadRequest, "status is required")
+		return
+	}
+
+	order, err := h.orders.UpdateStatus(c.Request.Context(), orderID, models.OrderStatus(req.Status))
+	if err != nil {
+		handleOrderError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"order": order})
+}
+
 func currentUserID(c *gin.Context) (uint, bool) {
 	userID, ok := c.Get(middleware.ContextUserID)
 	if !ok {
@@ -111,6 +136,12 @@ func handleOrderError(c *gin.Context, err error) {
 		c.JSON(http.StatusForbidden, gin.H{"error": "forbidden"})
 	case errors.Is(err, services.ErrOrderCancelled):
 		c.JSON(http.StatusBadRequest, gin.H{"error": "order already cancelled"})
+	case errors.Is(err, services.ErrOrderClosed):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "menu is closed for ordering"})
+	case errors.Is(err, services.ErrOrderCapacity):
+		c.JSON(http.StatusConflict, gin.H{"error": "menu capacity reached"})
+	case errors.Is(err, services.ErrInvalidStatus):
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid order status"})
 	case errors.Is(err, gorm.ErrRecordNotFound):
 		c.JSON(http.StatusNotFound, gin.H{"error": "order or menu not found"})
 	default:

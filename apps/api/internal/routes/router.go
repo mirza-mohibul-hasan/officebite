@@ -67,10 +67,17 @@ func NewRouter(cfg config.Config, deps Dependencies) *gin.Engine {
 	admin.PUT("/menus/:id", menuHandler.Update)
 	admin.DELETE("/menus/:id", menuHandler.Delete)
 	admin.GET("/orders", orderHandler.ListAll)
+	admin.PATCH("/orders/:id/status", orderHandler.UpdateStatus)
 
 	analyticsService := services.NewAnalyticsService(deps.Repositories.Analytics)
 	analyticsHandler := handlers.NewAnalyticsHandler(analyticsService)
 	admin.GET("/dashboard/summary", analyticsHandler.DashboardSummary)
+
+	userService := services.NewUserService(deps.Repositories.Users)
+	userHandler := handlers.NewUserHandler(userService)
+	admin.GET("/users", userHandler.List)
+	admin.POST("/users", userHandler.Create)
+	admin.PUT("/users/:id", userHandler.Update)
 
 	return router
 }

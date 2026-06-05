@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from 'react-router';
-import { BarChart3, ClipboardList, LogOut, Menu as MenuIcon, Utensils } from 'lucide-react';
+import { BarChart3, ClipboardList, LogOut, Menu as MenuIcon, Users, Utensils } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 const employeeLinks = [
@@ -12,6 +12,7 @@ const adminLinks = [
   { label: 'Admin', to: '/admin', icon: BarChart3 },
   { label: 'Menus', to: '/admin/menus', icon: MenuIcon },
   { label: 'All Orders', to: '/admin/orders', icon: ClipboardList },
+  { label: 'Users', to: '/admin/users', icon: Users },
 ];
 
 export function AppLayout() {

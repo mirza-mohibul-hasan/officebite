@@ -13,8 +13,12 @@ import { formatDate, todayISODate } from '../utils/formatDate';
 const emptyForm: MenuPayload = {
   title: '',
   description: '',
+  category: 'lunch',
   price: 1200,
   available_date: todayISODate(),
+  cutoff_time: `${todayISODate()}T10:00`,
+  max_orders: 0,
+  is_active: true,
 };
 
 export function AdminMenusPage() {
@@ -47,7 +51,7 @@ export function AdminMenusPage() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    saveMutation.mutate(form);
+    saveMutation.mutate({ ...form, cutoff_time: new Date(form.cutoff_time).toISOString() });
   }
 
   function startEdit(menu: Menu) {
@@ -55,8 +59,12 @@ export function AdminMenusPage() {
     setForm({
       title: menu.title,
       description: menu.description,
+      category: menu.category,
       price: menu.price,
       available_date: menu.available_date.slice(0, 10),
+      cutoff_time: menu.cutoff_time.slice(0, 16),
+      max_orders: menu.max_orders,
+      is_active: menu.is_active,
     });
   }
 
@@ -102,6 +110,25 @@ export function AdminMenusPage() {
               required
             />
           </label>
+          <label className="grid gap-2 text-sm font-medium text-slate-700">
+            Category
+            <input
+              value={form.category}
+              onChange={(event) => setForm({ ...form, category: event.target.value })}
+              className="h-10 rounded-md border border-slate-300 px-3 outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
+              required
+            />
+          </label>
+          <label className="grid gap-2 text-sm font-medium text-slate-700">
+            Cutoff time
+            <input
+              type="datetime-local"
+              value={form.cutoff_time}
+              onChange={(event) => setForm({ ...form, cutoff_time: event.target.value })}
+              className="h-10 rounded-md border border-slate-300 px-3 outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
+              required
+            />
+          </label>
         </div>
         <label className="grid gap-2 text-sm font-medium text-slate-700">
           Description
@@ -123,6 +150,26 @@ export function AdminMenusPage() {
             required
           />
         </label>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="grid gap-2 text-sm font-medium text-slate-700">
+            Max orders
+            <input
+              type="number"
+              min={0}
+              value={form.max_orders}
+              onChange={(event) => setForm({ ...form, max_orders: Number(event.target.value) })}
+              className="h-10 rounded-md border border-slate-300 px-3 outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100"
+            />
+          </label>
+          <label className="flex items-center gap-2 pt-7 text-sm font-medium text-slate-700">
+            <input
+              type="checkbox"
+              checked={form.is_active}
+              onChange={(event) => setForm({ ...form, is_active: event.target.checked })}
+            />
+            Active menu
+          </label>
+        </div>
         <div className="flex gap-3">
           <button
             type="submit"
@@ -165,8 +212,23 @@ export function AdminMenusPage() {
                   <span className="rounded-md bg-brand-50 px-2 py-1 text-xs font-semibold text-brand-700">
                     {formatCurrency(menu.price)}
                   </span>
+                  <span className="rounded-md bg-slate-100 px-2 py-1 text-xs capitalize text-slate-600">
+                    {menu.category}
+                  </span>
+                  <span
+                    className={
+                      menu.is_active
+                        ? 'rounded-md bg-emerald-50 px-2 py-1 text-xs text-emerald-700'
+                        : 'rounded-md bg-red-50 px-2 py-1 text-xs text-red-700'
+                    }
+                  >
+                    {menu.is_active ? 'Active' : 'Inactive'}
+                  </span>
                 </div>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{menu.description}</p>
+                <p className="mt-1 text-xs text-slate-500">
+                  Cutoff {formatDate(menu.cutoff_time)} {menu.max_orders > 0 ? `- Capacity ${menu.max_orders}` : '- Unlimited capacity'}
+                </p>
               </div>
               <div className="flex gap-2">
                 <button

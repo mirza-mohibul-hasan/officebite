@@ -44,7 +44,11 @@ export function MenuPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-lg font-semibold text-slate-950">{menu.title}</h3>
+                <p className="mt-1 text-xs font-medium uppercase tracking-wide text-brand-700">{menu.category}</p>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{menu.description}</p>
+                <p className="mt-2 text-xs text-slate-500">
+                  Cutoff {formatDate(menu.cutoff_time)} {menu.max_orders > 0 ? `- Capacity ${menu.max_orders}` : ''}
+                </p>
               </div>
               <p className="shrink-0 rounded-md bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-900">
                 {formatCurrency(menu.price)}

@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/officebite/officebite/apps/api/internal/models"
 	"github.com/officebite/officebite/apps/api/internal/repository"
@@ -13,6 +14,9 @@ var (
 	ErrDuplicateOrder = errors.New("active order already exists")
 	ErrForbiddenOrder = errors.New("order does not belong to user")
 	ErrOrderCancelled = errors.New("order already cancelled")
+	ErrOrderClosed    = errors.New("menu is not available for orders")
+	ErrOrderCapacity  = errors.New("menu order capacity reached")
+	ErrInvalidStatus  = errors.New("invalid order status")
 )
 
 type OrderService struct {
@@ -25,8 +29,21 @@ func NewOrderService(orders repository.OrderRepository, menus repository.MenuRep
 }
 
 func (s OrderService) Place(ctx context.Context, userID uint, menuID uint) (*models.Order, error) {
-	if _, err := s.menus.FindByID(ctx, menuID); err != nil {
+	menu, err := s.menus.FindByID(ctx, menuID)
+	if err != nil {
 		return nil, err
+	}
+	if !menu.IsActive || time.Now().After(menu.CutoffTime) {
+		return nil, ErrOrderClosed
+	}
+	if menu.MaxOrders > 0 {
+		count, err := s.orders.CountActiveByMenu(ctx, menuID)
+		if err != nil {
+			return nil, err
+		}
+		if count >= int64(menu.MaxOrders) {
+			return nil, ErrOrderCapacity
+		}
 	}
 
 	existing, err := s.orders.FindActiveByUserAndMenu(ctx, userID, menuID)
@@ -60,8 +77,28 @@ func (s OrderService) Cancel(ctx context.Context, userID uint, orderID uint) (*m
 	if order.Status == models.OrderStatusCancelled {
 		return nil, ErrOrderCancelled
 	}
+	if order.Status == models.OrderStatusDelivered || time.Now().After(order.Menu.CutoffTime) {
+		return nil, ErrOrderClosed
+	}
 
 	order.Status = models.OrderStatusCancelled
+	if err := s.orders.Update(ctx, order); err != nil {
+		return nil, err
+	}
+
+	return s.orders.FindByID(ctx, order.ID)
+}
+
+func (s OrderService) UpdateStatus(ctx context.Context, orderID uint, status models.OrderStatus) (*models.Order, error) {
+	if !validOrderStatus(status) {
+		return nil, ErrInvalidStatus
+	}
+	order, err := s.orders.FindByID(ctx, orderID)
+	if err != nil {
+		return nil, err
+	}
+
+	order.Status = status
 	if err := s.orders.Update(ctx, order); err != nil {
 		return nil, err
 	}
@@ -75,4 +112,13 @@ func (s OrderService) ListByUser(ctx context.Context, userID uint) ([]models.Ord
 
 func (s OrderService) ListAll(ctx context.Context) ([]models.Order, error) {
 	return s.orders.ListAll(ctx)
+}
+
+func validOrderStatus(status models.OrderStatus) bool {
+	switch status {
+	case models.OrderStatusPlaced, models.OrderStatusConfirmed, models.OrderStatusDelivered, models.OrderStatusCancelled:
+		return true
+	default:
+		return false
+	}
 }
