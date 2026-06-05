@@ -9,6 +9,7 @@ import { OrderHistoryPage } from '../pages/OrderHistoryPage';
 import { LoginPage } from '../pages/LoginPage';
 import { GuestRoute } from './GuestRoute';
 import { ProtectedRoute } from './ProtectedRoute';
+import { RouteErrorBoundary } from './RouteErrorBoundary';
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
       {
         path: '/',
         element: <AppLayout />,
+        errorElement: <RouteErrorBoundary />,
         children: [
           {
             index: true,
@@ -40,6 +42,7 @@ export const router = createBrowserRouter([
       {
         path: '/admin',
         element: <AppLayout />,
+        errorElement: <RouteErrorBoundary />,
         children: [
           {
             index: true,
@@ -63,6 +66,7 @@ export const router = createBrowserRouter([
       {
         path: '/login',
         element: <LoginPage />,
+        errorElement: <RouteErrorBoundary />,
       },
     ],
   },

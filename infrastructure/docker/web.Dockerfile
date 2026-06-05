@@ -18,6 +18,8 @@ CMD ["npm", "run", "dev"]
 FROM deps AS build
 
 WORKDIR /app
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
 COPY apps/web ./
 RUN npm run build
 

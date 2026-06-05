@@ -25,8 +25,10 @@ func NewRouter(cfg config.Config, deps Dependencies) *gin.Engine {
 
 	router := gin.New()
 	router.Use(gin.Logger(), gin.Recovery())
+	router.Use(middleware.SecurityHeaders())
+	router.Use(middleware.BodySizeLimit(1 << 20))
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{cfg.WebOrigin},
+		AllowOrigins:     cfg.WebOrigins,
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodOptions},
 		AllowHeaders:     []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,

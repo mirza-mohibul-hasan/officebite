@@ -91,3 +91,7 @@ All application routes are prefixed with `/api/v1`.
 - `GET /admin/dashboard/summary`
 
 More detail lives in `docs/api.md`.
+
+## Production Notes
+
+Production hardening notes live in `docs/production.md`.
