@@ -48,5 +48,16 @@ func NewRouter(cfg config.Config, deps Dependencies) *gin.Engine {
 	protected.Use(middleware.AuthRequired(cfg.JWTSecret))
 	protected.GET("/auth/me", authHandler.Me)
 
+	menuService := services.NewMenuService(deps.Repositories.Menus)
+	menuHandler := handlers.NewMenuHandler(menuService)
+	protected.GET("/menus/today", menuHandler.ListToday)
+
+	admin := protected.Group("/admin")
+	admin.Use(middleware.RequireRole("admin"))
+	admin.GET("/menus", menuHandler.ListAll)
+	admin.POST("/menus", menuHandler.Create)
+	admin.PUT("/menus/:id", menuHandler.Update)
+	admin.DELETE("/menus/:id", menuHandler.Delete)
+
 	return router
 }

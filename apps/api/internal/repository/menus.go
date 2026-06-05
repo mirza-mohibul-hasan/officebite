@@ -13,6 +13,7 @@ type MenuRepository interface {
 	Update(ctx context.Context, menu *models.Menu) error
 	Delete(ctx context.Context, id uint) error
 	FindByID(ctx context.Context, id uint) (*models.Menu, error)
+	ListAll(ctx context.Context) ([]models.Menu, error)
 	ListByDate(ctx context.Context, date time.Time) ([]models.Menu, error)
 }
 
@@ -43,6 +44,17 @@ func (r *GormMenuRepository) FindByID(ctx context.Context, id uint) (*models.Men
 	}
 
 	return &menu, nil
+}
+
+func (r *GormMenuRepository) ListAll(ctx context.Context) ([]models.Menu, error) {
+	var menus []models.Menu
+	if err := r.db.WithContext(ctx).
+		Order("available_date DESC, title ASC").
+		Find(&menus).Error; err != nil {
+		return nil, err
+	}
+
+	return menus, nil
 }
 
 func (r *GormMenuRepository) ListByDate(ctx context.Context, date time.Time) ([]models.Menu, error) {
