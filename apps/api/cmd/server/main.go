@@ -37,6 +37,16 @@ func main() {
 			log.Fatalf("failed to run database migrations: %v", err)
 		}
 	}
+	if cfg.SeedData {
+		if err := database.Seed(db, database.SeedOptions{
+			AdminEmail:       cfg.SeedAdminEmail,
+			AdminPassword:    cfg.SeedAdminPass,
+			EmployeeEmail:    cfg.SeedEmployeeEmail,
+			EmployeePassword: cfg.SeedEmployeePass,
+		}); err != nil {
+			log.Fatalf("failed to seed database: %v", err)
+		}
+	}
 
 	repositories := repository.NewRepositories(db)
 	sqlDB, err := db.DB()

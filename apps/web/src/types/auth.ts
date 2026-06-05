@@ -11,3 +11,8 @@ export type AuthSession = {
   token: string;
   user: AuthUser;
 };
+
+export type LoginRequest = {
+  email: string;
+  password: string;
+};

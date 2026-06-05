@@ -8,7 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/officebite/officebite/apps/api/internal/config"
 	"github.com/officebite/officebite/apps/api/internal/handlers"
+	"github.com/officebite/officebite/apps/api/internal/middleware"
 	"github.com/officebite/officebite/apps/api/internal/repository"
+	"github.com/officebite/officebite/apps/api/internal/services"
 )
 
 type Dependencies struct {
@@ -37,6 +39,14 @@ func NewRouter(cfg config.Config, deps Dependencies) *gin.Engine {
 	api := router.Group("/api/v1")
 	api.GET("/health", healthHandler.Check)
 	api.GET("/ready", healthHandler.Ready)
+
+	authService := services.NewAuthService(deps.Repositories.Users, cfg.JWTSecret, cfg.JWTIssuer)
+	authHandler := handlers.NewAuthHandler(authService)
+	api.POST("/auth/login", authHandler.Login)
+
+	protected := api.Group("")
+	protected.Use(middleware.AuthRequired(cfg.JWTSecret))
+	protected.GET("/auth/me", authHandler.Me)
 
 	return router
 }
