@@ -66,5 +66,9 @@ func NewRouter(cfg config.Config, deps Dependencies) *gin.Engine {
 	admin.DELETE("/menus/:id", menuHandler.Delete)
 	admin.GET("/orders", orderHandler.ListAll)
 
+	analyticsService := services.NewAnalyticsService(deps.Repositories.Analytics)
+	analyticsHandler := handlers.NewAnalyticsHandler(analyticsService)
+	admin.GET("/dashboard/summary", analyticsHandler.DashboardSummary)
+
 	return router
 }
