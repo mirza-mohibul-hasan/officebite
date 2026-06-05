@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router';
 import { LogIn } from 'lucide-react';
 import { ErrorState } from '../components/ErrorState';
+import { getApiErrorMessage } from '../services/errors';
 import { login } from '../services/auth';
 import { useAuthStore } from '../store/authStore';
 
@@ -35,7 +36,9 @@ export function LoginPage() {
         <p className="mt-3 text-sm leading-6 text-slate-600">Use your office meal account to continue.</p>
 
         <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
-          {loginMutation.isError ? <ErrorState message="Check your email and password, then try again." /> : null}
+          {loginMutation.isError ? (
+            <ErrorState message={getApiErrorMessage(loginMutation.error, 'Check your email and password, then try again.')} />
+          ) : null}
           <label className="grid gap-2 text-sm font-medium text-slate-700">
             Email
             <input

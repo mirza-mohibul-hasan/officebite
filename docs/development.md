@@ -17,6 +17,14 @@ npm install
 npm run dev
 ```
 
+Lint and build:
+
+```bash
+cd apps/web
+npm run lint
+npm run build
+```
+
 ## Docker
 
 ```bash
